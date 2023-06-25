@@ -1,0 +1,5 @@
+# 校验css的规则忽略以下文件
+/node_modules/*
+/dist/*
+/html/*
+/public/*
