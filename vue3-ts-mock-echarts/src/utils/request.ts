@@ -4,11 +4,7 @@ import useUserStore from '@/store/login/Login'
 
 let request = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API,
-  timeout: 1000 * 6,
-  // 统一请求头
-  headers: {
-    'Content-Type': 'application/json; charset=UTF-8',
-  },
+  timeout: 1000 * 10,
 })
 
 request.interceptors.request.use((config) => {
