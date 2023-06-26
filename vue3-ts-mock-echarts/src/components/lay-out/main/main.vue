@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import useLayOutSettingStore from '@/store/setting/setting'
+import useLayOutSettingStore from '@/store/global/setting/setting'
 const settingStore = useLayOutSettingStore()
 
 // 控制组件销毁和重建
@@ -23,3 +23,4 @@ watch(
 </template>
 
 <style lang="scss" scoped></style>
+@/store/global/setting/setting

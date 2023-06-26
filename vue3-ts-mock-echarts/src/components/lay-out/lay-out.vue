@@ -6,7 +6,7 @@ import useUserStore from '@/store/login/Login'
 import { storeToRefs } from 'pinia'
 import Main from './main/main.vue'
 import TopBar from './topbar/topbar.vue'
-import useLayOutSettingStore from '@/store/setting/setting'
+import useLayOutSettingStore from '@/store/global/setting/setting'
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -85,7 +85,7 @@ const { fold } = storeToRefs(useLayOutSettingStore())
     top: $base-topbar-height;
     overflow: auto;
     transition: all 0.3s;
-    padding: 10px;
+    padding: 20px;
     &.fold {
       width: calc(100% - $base-menu-fold-width);
       left: $base-menu-fold-width;
@@ -93,3 +93,4 @@ const { fold } = storeToRefs(useLayOutSettingStore())
   }
 }
 </style>
+@/store/global/setting/setting

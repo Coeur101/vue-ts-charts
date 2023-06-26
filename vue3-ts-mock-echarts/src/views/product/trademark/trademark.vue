@@ -22,7 +22,7 @@ let trademarkParams = reactive<TRADEMARK_LIST>({
  * 自定义校验规则
  */
 const validatorTmName = <T extends string>(
-  rule: any,
+  _: any,
   value: T,
   callBack: Function,
 ) => {
@@ -39,7 +39,7 @@ const validatorTmName = <T extends string>(
  * @param callBack 回调方法。错误还是正确都得调用
  */
 const validatorLogoUrl = <T extends string>(
-  rule: any,
+  _: any,
   value: T,
   callBack: Function,
 ) => {

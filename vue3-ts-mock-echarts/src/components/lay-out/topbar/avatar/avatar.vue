@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import useUserStore from '@/store/login/Login'
-import useLayOutSettingStore from '@/store/setting/setting'
+import useLayOutSettingStore from '@/store/global/setting/setting'
 const router = useRouter()
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
@@ -67,3 +67,4 @@ const handleUserOut = async () => {
   }
 }
 </style>
+@/store/global/setting/setting

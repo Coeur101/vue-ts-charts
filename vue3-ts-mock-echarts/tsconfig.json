@@ -22,8 +22,9 @@
     "types": ["element-plus/global"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
-    }
+      "@/*": ["./src/*"]
+    },
+    "ignoreDeprecations": "5.0"
   },
   "include": [
     "env.d.ts",

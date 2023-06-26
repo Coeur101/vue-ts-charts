@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import useLayOutSettingStore from '@/store/setting/setting'
+import useLayOutSettingStore from '@/store/global/setting/setting'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
 const route = useRoute()
@@ -42,3 +42,4 @@ const menuCopll = () => {
   gap: 5px;
 }
 </style>
+@/store/global/setting/setting
