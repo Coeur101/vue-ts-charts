@@ -8,6 +8,9 @@ let useCategoryStore = defineStore('categoryStore', {
       category1: [],
       category2: [],
       category3: [],
+      category1Id: '',
+      category2Id: '',
+      category3Id: '',
     },
   actions: {
     async getCategory(id?: number, index: number = 1) {

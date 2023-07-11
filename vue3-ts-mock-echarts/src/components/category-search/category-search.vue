@@ -1,33 +1,26 @@
 <script setup lang="ts">
-import { CATEGORY } from '@/store/global/types/category_type'
 import useCategoryStore from '@/store/global/category/category'
-
+defineProps<{
+  isDisabled: number
+}>()
 const categoryStore = useCategoryStore()
-type CATEGORY_TYPE_PARAMS = {
-  [key in keyof CATEGORY]: number | string
-}
-const categoryParams = reactive<CATEGORY_TYPE_PARAMS>({
-  category1: '',
-  category2: '',
-  category3: '',
-})
-const emit = defineEmits(['sendCatgoryId'])
+const emit = defineEmits(['sendCatgoryId', 'sendAttrButton'])
 const getCategory = async (index: number) => {
   if (index == 3) {
-    emit(
-      'sendCatgoryId',
-      categoryParams.category1,
-      categoryParams.category2,
-      categoryParams.category3,
-    )
+    emit('sendCatgoryId')
   } else {
     // 每次改变下拉列表后，就将后面的所有下拉列表的内容清空
-    for (let i = index + 1; i <= Object.keys(categoryParams).length; i++) {
-      ;(categoryParams as any)[`category${i}`] = ''
+    for (
+      let i = index + 1;
+      i <= Object.keys(categoryStore.$state).length;
+      i++
+    ) {
+      ;(categoryStore as any)[`category${i}Id`] = ''
     }
+    emit('sendAttrButton')
     // 每次请求下一个页面的数据
     categoryStore.getCategory(
-      (categoryParams as any)[`category${index}`],
+      (categoryStore as any)[`category${index}Id`],
       index + 1,
     )
   }
@@ -37,11 +30,11 @@ onMounted(() => {
 })
 </script>
 <template>
-  <el-form inline :model="categoryParams">
+  <el-form :disabled="isDisabled ? true : false" inline>
     <el-form-item label="一级分类">
       <el-select
         clearable
-        v-model="categoryParams.category1"
+        v-model="categoryStore.category1Id"
         filterable
         @change="getCategory(1)"
       >
@@ -56,7 +49,7 @@ onMounted(() => {
     <el-form-item label="二级分类">
       <el-select
         clearable
-        v-model="categoryParams.category2"
+        v-model="categoryStore.category2Id"
         filterable
         @change="getCategory(2)"
       >
@@ -71,7 +64,7 @@ onMounted(() => {
     <el-form-item label="三级分类">
       <el-select
         clearable
-        v-model="categoryParams.category3"
+        v-model="categoryStore.category3Id"
         filterable
         @change="getCategory(3)"
       >

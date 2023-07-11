@@ -21,7 +21,7 @@ request.interceptors.response.use(
     if (res.data.code !== 200) {
       ElMessage({
         type: 'error',
-        message: res.data.data,
+        message: res.data.message,
       })
       return ''
     }

@@ -1,26 +1,59 @@
 <script setup lang="ts">
 import { ATTR_LIST } from '@/api/product/attr/type'
 import CategorySearch from '@/components/category-search/category-search.vue'
-import { reqAttr } from '@/api/product/attr/attr'
+import { reqAddAttrOrUpdate, reqAttr } from '@/api/product/attr/attr'
+import useCategoryStore from '@/store/global/category/category'
+import { ElMessage } from 'element-plus'
+const categoryStore = useCategoryStore()
 const tabelData = ref<ATTR_LIST[]>([])
 // 定义新增按钮是否可用，只有当三级分类有值时才能够使用
 const addAttrButton = ref<boolean>(true)
+const attrParams = reactive<ATTR_LIST>({
+  attrName: '',
+  attrValueList: [],
+  categoryId: '', // 分类的id
+  categoryLevel: 3, //三级分类
+})
 // 定义card组件内容切换的变量
 let scene = ref<number>(0) // scene=0时展示属性值的数据，为1时展示添加修改的表格
-const getAttrId = async (
-  category1Id: number | string,
-  category2Id: number | string,
-  category3Id: number | string,
-) => {
+const getAttrId = async () => {
   tabelData.value = []
-  const result = await reqAttr(category1Id, category2Id, category3Id)
+  const result = await reqAttr(
+    categoryStore.category1Id,
+    categoryStore.category2Id,
+    categoryStore.category3Id,
+  )
   tabelData.value = result.data
   addAttrButton.value = false
+  attrParams.categoryId = categoryStore.category3Id
 }
 const addAttr = () => {
+  // 清空数据
+  Object.assign(attrParams, {
+    attrName: '',
+    attrValueList: [],
+    categoryId: '', // 分类的id
+    categoryLevel: 3, //三级分类
+  })
   scene.value = 1
 }
+const addAttrValue = () => {
+  attrParams.attrValueList?.push({
+    valueName: '',
+  })
+}
 const updateAttr = () => {}
+const saveAttr = async () => {
+  const res = await reqAddAttrOrUpdate(attrParams)
+  if (res) {
+    scene.value = 0
+    ElMessage({
+      type: 'success',
+      message: attrParams.id ? '修改成功' : '添加成功',
+    })
+    getAttrId()
+  }
+}
 // 取消按钮的回调
 const cancel = () => {
   scene.value = 0
@@ -28,7 +61,11 @@ const cancel = () => {
 </script>
 <template>
   <el-card shadow="always">
-    <CategorySearch @send-catgory-id="getAttrId"></CategorySearch>
+    <CategorySearch
+      :isDisabled="scene"
+      @send-catgory-id="getAttrId"
+      @send-attr-button="addAttrButton = true"
+    ></CategorySearch>
   </el-card>
 
   <el-card shadow="always" :style="{ margin: '10px 0 0 0' }">
@@ -92,25 +129,38 @@ const cancel = () => {
       </el-table>
     </div>
     <div v-show="scene == 1">
-      <el-form :inline="true">
+      <el-form :inline="true" :model="attrParams">
         <el-form-item label="属性名称">
-          <el-input placeholder="请输入属性名称"></el-input>
+          <el-input
+            placeholder="请输入属性名称"
+            v-model="attrParams.attrName"
+          ></el-input>
         </el-form-item>
       </el-form>
-      <el-button icon="Plus" type="primary">添加属性值</el-button>
+      <el-button
+        icon="Plus"
+        type="primary"
+        :disabled="attrParams.attrName ? false : true"
+        @click="addAttrValue"
+      >
+        添加属性值
+      </el-button>
       <el-button size="default" @click="cancel">取消</el-button>
-      <el-table border :max-height="400">
+      <el-table border :max-height="400" :data="attrParams.attrValueList">
         <el-table-column
           label="序号"
           type="index"
           align="center"
           width="80"
         ></el-table-column>
-        <el-table-column
-          label="属性值名称"
-          align="center"
-          width="auto"
-        ></el-table-column>
+        <el-table-column label="属性值名称" align="center" width="auto">
+          <template #="{ row }">
+            <el-input
+              placeholder="请你输入属性值名称"
+              v-model="row.valueName"
+            ></el-input>
+          </template>
+        </el-table-column>
         <el-table-column label="属性值操作" align="center" width="200">
           <template #="{ row }">
             <el-popconfirm
@@ -129,8 +179,12 @@ const cancel = () => {
           </template>
         </el-table-column>
       </el-table>
-      <el-button type="primary">保存</el-button>
-      <el-button size="default" @click="cancel">取消</el-button>
+      <el-button type="primary" style="margin-top: 10px" @click="saveAttr">
+        保存
+      </el-button>
+      <el-button size="default" style="margin-top: 10px" @click="cancel">
+        取消
+      </el-button>
     </div>
   </el-card>
 </template>
