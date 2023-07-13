@@ -5,12 +5,25 @@ import {
   reqDelTrademark,
 } from '@/api/product/trademark/trademark'
 import { TRADEMARK_LIST } from '@/api/product/trademark/type'
+import usePage from '@/hooks/usePage'
 import { ElMessage, FormInstance, UploadProps } from 'element-plus'
-const pageSize = ref<number>(10)
-const currentPage = ref<number>(1)
 const trademark_form_ref = ref<FormInstance>()
 // 存储已有品牌数量的总数
-const total = ref<number>(0)
+/**
+ * 通过当前页码和页中条数发生改变时，请求后端获取数据
+ * @param pager 当前页码
+ */
+const getHasTrademark = async (pager: number = 1) => {
+  currentPage.value = pager
+  const result = await reqHasTrademark(currentPage.value, pageSize.value)
+  if (result) {
+    total.value = result.data!.total
+    // 浅拷贝一层
+    tabelData.value = result.data?.records
+  }
+}
+const { total, handleCurrentChange, handleSizeChange, pageSize, currentPage } =
+  usePage(getHasTrademark)
 const dialogFormVisible = ref<boolean>(false)
 // 存储品牌的列表数据
 let tabelData = ref<TRADEMARK_LIST[] | undefined>([])
@@ -57,32 +70,6 @@ const rules = reactive({
   tmName: [{ required: true, trigger: 'blur', validator: validatorTmName }],
 })
 
-/**
- * 当前页条数发生改变时
- */
-const handleSizeChange = () => {
-  currentPage.value = 1
-  getHasTrademark(currentPage.value)
-}
-/**
- * 当前页码发生改变时
- */
-const handleCurrentChange = () => {
-  getHasTrademark(currentPage.value)
-}
-/**
- * 通过当前页码和页中条数发生改变时，请求后端获取数据
- * @param pager 当前页码
- */
-const getHasTrademark = async (pager: number = 1) => {
-  currentPage.value = pager
-  const result = await reqHasTrademark(currentPage.value, pageSize.value)
-  if (result) {
-    total.value = result.data!.total
-    // 浅拷贝一层
-    tabelData.value = result.data?.records
-  }
-}
 /**
  * 新增品牌
  */

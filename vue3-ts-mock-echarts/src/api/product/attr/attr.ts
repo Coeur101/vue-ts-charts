@@ -7,6 +7,8 @@ enum API {
   // 获取分类下的已有属性和属性值
   GET_ATTR_URL = '/admin/product/attrInfoList/',
   POST_ATTR_VALUE_URL = '/admin/product/saveAttrInfo', // 添加或修改属性与属性值
+  // 删除属性
+  DEL_ATTR_URL = '/admin/product/deleteAttr/',
 }
 
 export const reqCategory = <T>(id?: number, index: number = 1) => {
@@ -25,4 +27,7 @@ export const reqAttr = <T>(
 }
 export const reqAddAttrOrUpdate = <T>(data: ATTR_LIST) => {
   return request.post<T, any>(API.POST_ATTR_VALUE_URL, data)
+}
+export const reqDelAttr = <T>(id: number | string) => {
+  return request.delete<T, any>(API.DEL_ATTR_URL + `${id}`)
 }

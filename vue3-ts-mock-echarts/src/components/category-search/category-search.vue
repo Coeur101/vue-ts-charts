@@ -30,53 +30,55 @@ onMounted(() => {
 })
 </script>
 <template>
-  <el-form :disabled="isDisabled ? true : false" inline>
-    <el-form-item label="一级分类">
-      <el-select
-        clearable
-        v-model="categoryStore.category1Id"
-        filterable
-        @change="getCategory(1)"
-      >
-        <el-option
-          v-for="item in categoryStore.category1"
-          :key="item.id"
-          :value="item.id"
-          :label="item.name"
-        ></el-option>
-      </el-select>
-    </el-form-item>
-    <el-form-item label="二级分类">
-      <el-select
-        clearable
-        v-model="categoryStore.category2Id"
-        filterable
-        @change="getCategory(2)"
-      >
-        <el-option
-          v-for="item in categoryStore.category2"
-          :key="item.id"
-          :value="item.id"
-          :label="item.name"
-        ></el-option>
-      </el-select>
-    </el-form-item>
-    <el-form-item label="三级分类">
-      <el-select
-        clearable
-        v-model="categoryStore.category3Id"
-        filterable
-        @change="getCategory(3)"
-      >
-        <el-option
-          v-for="item in categoryStore.category3"
-          :key="item.id"
-          :value="item.id"
-          :label="item.name"
-        ></el-option>
-      </el-select>
-    </el-form-item>
-  </el-form>
+  <el-card shadow="always">
+    <el-form :disabled="isDisabled ? true : false" inline>
+      <el-form-item label="一级分类">
+        <el-select
+          clearable
+          v-model="categoryStore.category1Id"
+          filterable
+          @change="getCategory(1)"
+        >
+          <el-option
+            v-for="item in categoryStore.category1"
+            :key="item.id"
+            :value="item.id"
+            :label="item.name"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="二级分类">
+        <el-select
+          clearable
+          v-model="categoryStore.category2Id"
+          filterable
+          @change="getCategory(2)"
+        >
+          <el-option
+            v-for="item in categoryStore.category2"
+            :key="item.id"
+            :value="item.id"
+            :label="item.name"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="三级分类">
+        <el-select
+          clearable
+          v-model="categoryStore.category3Id"
+          filterable
+          @change="getCategory(3)"
+        >
+          <el-option
+            v-for="item in categoryStore.category3"
+            :key="item.id"
+            :value="item.id"
+            :label="item.name"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+    </el-form>
+  </el-card>
 </template>
 
 <style lang="scss" scoped></style>

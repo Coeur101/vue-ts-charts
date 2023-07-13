@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import { ATTR_LIST } from '@/api/product/attr/type'
+import { ATTR_LIST, ATTR_VALUE_LIST } from '@/api/product/attr/type'
 import CategorySearch from '@/components/category-search/category-search.vue'
-import { reqAddAttrOrUpdate, reqAttr } from '@/api/product/attr/attr'
+import {
+  reqAddAttrOrUpdate,
+  reqAttr,
+  reqDelAttr,
+} from '@/api/product/attr/attr'
 import useCategoryStore from '@/store/global/category/category'
-import { ElMessage } from 'element-plus'
+import { ElMessage, InputInstance } from 'element-plus'
 const categoryStore = useCategoryStore()
 const tabelData = ref<ATTR_LIST[]>([])
+// 定义el-input的组件实例的数组
+const attrInputArr = ref<InputInstance[]>([])
 // 定义新增按钮是否可用，只有当三级分类有值时才能够使用
 const addAttrButton = ref<boolean>(true)
 const attrParams = reactive<ATTR_LIST>({
@@ -25,7 +31,6 @@ const getAttrId = async () => {
   )
   tabelData.value = result.data
   addAttrButton.value = false
-  attrParams.categoryId = categoryStore.category3Id
 }
 const addAttr = () => {
   // 清空数据
@@ -35,14 +40,59 @@ const addAttr = () => {
     categoryId: '', // 分类的id
     categoryLevel: 3, //三级分类
   })
+  attrParams.categoryId = categoryStore.category3Id
   scene.value = 1
 }
 const addAttrValue = () => {
+  if (attrParams.attrValueList?.find((item) => item.valueName === '')) {
+    ElMessage.error('属性值不能为空')
+    return
+  }
   attrParams.attrValueList?.push({
     valueName: '',
+    flag: false,
+  })
+  nextTick(() => {
+    attrInputArr.value.pop()?.focus()
   })
 }
-const updateAttr = () => {}
+const updateAttr = (data: ATTR_LIST) => {
+  // 使用深拷贝，这样修改的时候就不会改变原对象
+  Object.assign(attrParams, JSON.parse(JSON.stringify(data)))
+  scene.value = 1
+}
+const delAttr = async (data: ATTR_LIST) => {
+  const res = await reqDelAttr(data.id as number)
+  ElMessage.success(res.message)
+  getAttrId()
+}
+const handleShowAttr = (data: ATTR_VALUE_LIST, index: number) => {
+  if (data.valueName?.trim() === '') {
+    // 删除属性值为空的元素
+    attrParams.attrValueList?.splice(index, 1)
+    ElMessage.error('属性值不能为空')
+    return
+  }
+  if (
+    attrParams.attrValueList?.find((item) => {
+      if (item != data) {
+        return item.valueName === data.valueName
+      }
+    })
+  ) {
+    ElMessage.error('属性值不能重复')
+    return
+  }
+
+  data.flag = true
+}
+const handleUpdateAttr = (data: ATTR_VALUE_LIST, index: number) => {
+  nextTick(() => {
+    attrInputArr.value[index].focus()
+  })
+
+  data.flag = false
+}
 const saveAttr = async () => {
   const res = await reqAddAttrOrUpdate(attrParams)
   if (res) {
@@ -58,15 +108,18 @@ const saveAttr = async () => {
 const cancel = () => {
   scene.value = 0
 }
+// 组件销毁之前,清空相关的数据
+onBeforeUnmount(() => {
+  // 清空仓库中的数据
+  categoryStore.$reset()
+})
 </script>
 <template>
-  <el-card shadow="always">
-    <CategorySearch
-      :isDisabled="scene"
-      @send-catgory-id="getAttrId"
-      @send-attr-button="addAttrButton = true"
-    ></CategorySearch>
-  </el-card>
+  <CategorySearch
+    :isDisabled="scene"
+    @send-catgory-id="getAttrId"
+    @send-attr-button="addAttrButton = false"
+  ></CategorySearch>
 
   <el-card shadow="always" :style="{ margin: '10px 0 0 0' }">
     <div v-show="scene == 0">
@@ -109,7 +162,7 @@ const cancel = () => {
               type="warning"
               size="small"
               icon="Edit"
-              @click="updateAttr"
+              @click="updateAttr(row)"
             ></el-button>
             <el-popconfirm
               width="220"
@@ -117,7 +170,7 @@ const cancel = () => {
               cancel-button-text="取消"
               icon="WarningFilled"
               icon-color="#e6a23c"
-              @confirm=""
+              @confirm="delAttr(row)"
               :title="`确定要删除这个${row.attrName}属性吗?`"
             >
               <template #reference>
@@ -146,7 +199,12 @@ const cancel = () => {
         添加属性值
       </el-button>
       <el-button size="default" @click="cancel">取消</el-button>
-      <el-table border :max-height="400" :data="attrParams.attrValueList">
+      <el-table
+        border
+        style="margin: 10px 0"
+        :max-height="400"
+        :data="attrParams.attrValueList"
+      >
         <el-table-column
           label="序号"
           type="index"
@@ -154,23 +212,29 @@ const cancel = () => {
           width="80"
         ></el-table-column>
         <el-table-column label="属性值名称" align="center" width="auto">
-          <template #="{ row }">
+          <template #="{ row, $index }">
             <el-input
               placeholder="请你输入属性值名称"
               v-model="row.valueName"
+              :ref="(el:any)=>attrInputArr[$index] = el"
+              v-show="!row.flag"
+              @blur="handleShowAttr(row, $index)"
             ></el-input>
+            <div v-show="row.flag" @click="handleUpdateAttr(row, $index)">
+              {{ row.valueName }}
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="属性值操作" align="center" width="200">
-          <template #="{ row }">
+          <template #="{ row, $index }">
             <el-popconfirm
               width="220"
               confirm-button-text="确定"
               cancel-button-text="取消"
               icon="WarningFilled"
               icon-color="#e6a23c"
-              @confirm=""
-              :title="`确定要删除这个${row.attrName}属性吗?`"
+              :title="`确定要删除这个${row.valueName}属性吗?`"
+              @confirm="attrParams.attrValueList?.splice($index, 1)"
             >
               <template #reference>
                 <el-button type="danger" size="small" icon="Delete"></el-button>
@@ -179,12 +243,8 @@ const cancel = () => {
           </template>
         </el-table-column>
       </el-table>
-      <el-button type="primary" style="margin-top: 10px" @click="saveAttr">
-        保存
-      </el-button>
-      <el-button size="default" style="margin-top: 10px" @click="cancel">
-        取消
-      </el-button>
+      <el-button type="primary" @click="saveAttr">保存</el-button>
+      <el-button size="default" @click="cancel">取消</el-button>
     </div>
   </el-card>
 </template>

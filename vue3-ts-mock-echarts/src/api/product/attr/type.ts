@@ -11,6 +11,7 @@ export interface ATTR_VALUE_LIST {
   id?: number
   valueName?: string
   attrId?: number
+  flag?: boolean
 }
 
 export interface ATTR_LIST {
@@ -18,6 +19,7 @@ export interface ATTR_LIST {
   attrName: string
   categoryId: number | string
   categoryLevel: number
+
   attrValueList?: ATTR_VALUE_LIST[]
 }
 

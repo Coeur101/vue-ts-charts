@@ -20,17 +20,19 @@ let useUserStore = defineStore('userStore', {
   // 处理异步
   actions: {
     async postUserLogin(data: LOGIN_INFO) {
-      const result = await reqLogin(data)
-      if (result) {
-        this.token = result.data
-        localCache.setCache('TOKEN', result.data)
-        ElNotification({
-          type: 'success',
-          title: `HI,${getTimeMessage()}`,
-          message: '欢迎回来',
-        })
-        router.push('/')
-      }
+      try {
+        const result = await reqLogin(data)
+        if (result) {
+          this.token = result.data
+          localCache.setCache('TOKEN', result.data)
+          ElNotification({
+            type: 'success',
+            title: `HI,${getTimeMessage()}`,
+            message: '欢迎回来',
+          })
+          router.push('/')
+        }
+      } catch (error) {}
     },
     async getUserInfo() {
       const result = await reqUserInfo()
